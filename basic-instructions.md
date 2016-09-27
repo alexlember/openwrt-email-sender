@@ -138,4 +138,5 @@ date - текущее дата и время
 uname -a - спрака о версии ОС
 
 Команда по отправке письма с роутера:
+
 ```mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub test +cc +bc -v -user user@gmail.com -pass "your_password"```

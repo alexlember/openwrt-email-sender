@@ -146,6 +146,7 @@ uname -a - спрака о версии ОС
 ```
 
 Ввод данных
+
 ```
  echo "XX" > /sys/class/gpio/export
  echo "out" > /sys/class/gpio/gpioXX/direction
@@ -153,6 +154,7 @@ uname -a - спрака о версии ОС
 ```
 
 Чтение данных
+
 ```
 echo YY > /sys/class/gpio/export
 echo in > /sys/class/gpio/gpioYY/direction

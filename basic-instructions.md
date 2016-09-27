@@ -142,4 +142,20 @@ uname -a - спрака о версии ОС
 
 Команда по отправке письма с роутера:
 
-```mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub test +cc +bc -v -user user@gmail.com -pass "your_password"```
+```mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub test +cc +bc -v -user user@gmail.com -pass "your_password"
+```
+
+Ввод данных
+```
+ echo "XX" > /sys/class/gpio/export
+ echo "out" > /sys/class/gpio/gpioXX/direction
+ echo "0" > /sys/class/gpio/gpioXX/value
+```
+
+Чтение данных
+```
+echo YY > /sys/class/gpio/export
+echo in > /sys/class/gpio/gpioYY/direction
+cat /sys/class/gpio/gpioYY/value
+```
+

@@ -162,3 +162,9 @@ mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp
  echo in > /sys/class/gpio/gpioYY/direction
  cat /sys/class/gpio/gpioYY/value
 ```
+
+Описание того, как заставить программу запускаться при старте
+
+```
+https://wiki.openwrt.org/doc/techref/initscripts
+```

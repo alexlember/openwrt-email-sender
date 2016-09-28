@@ -1,0 +1,9 @@
+Input data:
+ echo "YY" > /sys/class/gpio/export
+ echo "out" > /sys/class/gpio/gpioYY/direction
+ echo "0" > /sys/class/gpio/gpioYY/value
+ echo "1" > /sys/class/gpio/gpioYY/value
+
+Read port:
+ cat /sys/class/gpio/gpioYY/value
+ cat /sys/class/gpio/gpioXX/value

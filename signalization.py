@@ -31,7 +31,10 @@ def send_email(state_change):
 
     result = str(f.read())
     logger(result)
-    logger("echo "" > message-body.html")
+
+    cmd = "echo "" > message-body.html"
+    os.system(cmd)
+    logger(cmd)
 
 
 # Method for form message-body
@@ -71,7 +74,10 @@ def send_start_email():
 
     result = str(f.read())
     logger(result)
-    logger("echo "" > message-body.html")
+
+    cmd = "echo "" > message-body.html"
+    os.system(cmd)
+    logger(cmd)
 
 
 # Event logger
@@ -88,6 +94,10 @@ def logger(message):
 
 # Main function, basic init, gpio poll.
 def main():
+
+    cmd = "echo "" > message-body.html"
+    os.system(cmd)
+    logger(cmd)
 
     set_gpios()
     current_input_state = get_gpio_state().strip()

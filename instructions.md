@@ -163,8 +163,4 @@ mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp
  cat /sys/class/gpio/gpioYY/value
 ```
 
-Описание того, как заставить программу запускаться при старте
-
-```
-https://wiki.openwrt.org/doc/techref/initscripts
-```
+Описание того, как заставить программу запускаться при старте https://wiki.openwrt.org/doc/techref/initscripts

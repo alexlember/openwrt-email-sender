@@ -7,6 +7,7 @@
 Описание роутера https://wiki.openwrt.org/toh/gl-inet/gl-inet_64xx
 Прошивку OpenWRT можно взять с ресурса http://www.gl-inet.com/downloads/
 Картинки с роутером http://mysku.ru/blog/china-stores/26421.html
+Видео с настройкой роутера https://www.youtube.com/watch?v=65ucyKd1DF8
 
 В рамках имеющихся распаянных проводках:
 ```

@@ -79,7 +79,7 @@ python-light - облегченный язык программирования 
 ntpd - пакет для синронизации времени с удаленным сервером
 mailsend - пакет для отправки писем из оболочки inux
 
-Установка производится командами:
+Установка производится командами (перед каждой командой лучше прогнать opkg update):
 ```
 opkg update
 opkg install python-light
@@ -175,6 +175,17 @@ mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp
 Описание того, как заставить программу запускаться при старте https://wiki.openwrt.org/doc/techref/initscripts
 https://forum.openwrt.org/viewtopic.php?id=25304
 which python
+
+Пока сделана быстрая реализация на коленке по статье http://askubuntu.com/questions/228304/how-do-i-run-a-script-at-start-up
+По пути /etc/rc.local в файл добавлена строка:
+/usr/bin/python /root/signalization_project/signalization.py
+
+Кроме того, все пути в файле signalization.py объявлены как абсолютные. Конечно, их необходимо вынести в конфиги, но потом.
+При загрузке программа крутится как демон на background, для просмотра событий можно заглянуть в логи:
+
+```
+cat /root/signalization_project_log
+```
 
 Все файлы из этого репозитория кроме данного instructions.md и readme.md должны лежать на роутере в одной папке 
 (Например: /root/signalization_project)

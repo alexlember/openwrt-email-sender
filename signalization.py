@@ -5,8 +5,16 @@ import time
 DEBUG = True
 
 
-# Input port setup.
+# Input and output port setup.
 def set_gpios():
+    cmd = "echo YY > /sys/class/gpio/export"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo out > /sys/class/gpio/gpioYY/direction"
+    os.system(cmd)
+    logger(cmd)
+
     cmd = "echo XX > /sys/class/gpio/export"
     os.system(cmd)
     logger(cmd)

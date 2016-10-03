@@ -71,11 +71,11 @@ def get_gpio_state(port):
 
 # Main send mail method (on state change)
 def send_email(state_change):
-	sub = form_message_body(state_change)
+    sub = form_message_body(state_change)
 
-    f = os.popen(form_email_body(FATHER_EMAIL, sub))
-    result = str(f.read())
-    logger(result)
+    # f = os.popen(form_email_body(FATHER_EMAIL, sub))
+    # result = str(f.read())
+    # logger(result)
 
     f = os.popen(form_email_body(SON_EMAIL, sub))
     result = str(f.read())
@@ -134,15 +134,15 @@ def send_start_email():
                    "<p>Port 22: type in, state %s") % (port18_state, port19_state, port20_state, port21_state, port22_state)
 
 
-    cmd = "cat '<br>' >> /root/signalization_project/message-body.html"
+    cmd = "echo '%s' >> /root/signalization_project/message-body.html" % (port_states)
     os.system(cmd)
     logger(cmd)
 
-    cmd = "cat '%s' >> /root/signalization_project/message-body.html" % (port_states)
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "cat '<br>' >> /root/signalization_project/message-body.html"
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 
@@ -152,9 +152,9 @@ def send_start_email():
 
     sub = "'Signalization activeted'"
 
-    f = os.popen(form_email_body(FATHER_EMAIL, sub))
-    result = str(f.read())
-    logger(result)
+    #  f = os.popen(form_email_body(FATHER_EMAIL, sub))
+    #  result = str(f.read())
+    #  logger(result)
 
     f = os.popen(form_email_body(SON_EMAIL, sub))
     result = str(f.read())
@@ -167,10 +167,6 @@ def send_start_email():
     cmd = "echo "" > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
-
-
-def form_ports_state():
-
 
 
 # Event logger

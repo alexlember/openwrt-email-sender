@@ -4,95 +4,136 @@ import time
 
 DEBUG = True
 
+FATHER_EMAIL = "xx@gmail.com"
+MOTHER_EMAIL = "yy@icloud.com"
+SON_EMAIL = "zz@gmail.com"
 
-# Input and output port setup.
+EMAIL_COMMAND = ("mailsend -to %s -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp "
+                "smtp.gmail.com -sub %s +cc +bc -v -user novokosino.home@gmail.com "
+                "-pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html")
+
+
+def form_email_body(email, sub):
+    email_command = EMAIL_COMMAND % (email, sub)
+    return email_command
+
+
+# Input port setup.
 def set_gpios():
-    cmd = "echo YY > /sys/class/gpio/export"
+
+    cmd = "echo 19 > /sys/class/gpio/export"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "echo out > /sys/class/gpio/gpioYY/direction"
+    cmd = "echo out > /sys/class/gpio/gpio19/direction"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "echo XX > /sys/class/gpio/export"
+    cmd = "echo 21 > /sys/class/gpio/export"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "echo in > /sys/class/gpio/gpioXX/direction"
+    cmd = "echo in > /sys/class/gpio/gpio21/direction"
     os.system(cmd)
     logger(cmd)
 
 
 # Method reading current state of input.
 def get_gpio_state():
-    f = os.popen("cat /sys/class/gpio/gpioXXS/value")
+    f = os.popen("cat /sys/class/gpio/gpio21/value")
     return str(f.read())
 
 
 # Main send mail method (on state change)
 def send_email(state_change):
-    form_message_body(state_change)
-    f = os.popen("mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp"
-                 " smtp.gmail.com -sub 'Signalization alert' +cc +bc -v -user novokosino.home@gmail.com "
-                 "-pass 'pass' -mime-type 'text/html' -msg-body ./message-body.html")
+	sub = form_message_body(state_change)
 
+    f = os.popen(form_email_body(FATHER_EMAIL, sub))
     result = str(f.read())
     logger(result)
 
-    cmd = "echo "" > message-body.html"
+    f = os.popen(form_email_body(SON_EMAIL, sub))
+    result = str(f.read())
+    logger(result)
+
+    # f = os.popen(form_email_body(MOTHER_EMAIL, sub)
+    # result = str(f.read())
+    # logger(result)
+
+    cmd = "echo "" > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 
 
 # Method for form message-body
 def form_message_body(state_change):
-    cmd = "cat warning.html > message-body.html"
+    cmd = "cat /root/signalization_project/warning.html > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
+    sub = ""
 
     if state_change.strip() == str("01"):
-        cmd = "cat zero_to_one.html >> message-body.html"
+        cmd = "cat /root/signalization_project/zero_to_one.html >> /root/signalization_project/message-body.html"
+        sub = "'State changed from low to high'"
         os.system(cmd)
         logger(cmd)
 
     elif state_change.strip() == str("10"):
-        cmd = "cat one_to_zero.html >> message-body.html"
+        cmd = "cat /root/signalization_project/one_to_zero.html >> /root/signalization_project/message-body.html"
+        sub = "'State changed from high to low'"
         os.system(cmd)
         logger(cmd)
 
-    cmd = "date >> message-body.html"
+    cmd = "date >> /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
+    return sub
 
 
 # Greeting method send main at startup.
 def send_start_email():
-    cmd = "cat start-message-body.html > message-body.html"
+    cmd = "cat /root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "date >> message-body.html"
+    # html = ("<html>"
+		  #   "  <body>"
+		  #   "       <p>%s</p>"          
+		  #   "   </body>"
+    # 		"</html>") % (myText, link)  
+
+    cmd = "date >> /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 
-    f = os.popen("mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp"
-                 " smtp.gmail.com -sub 'Signalization alert' +cc +bc -v -user novokosino.home@gmail.com "
-                 "-pass 'pass' -mime-type 'text/html' -msg-body ./message-body.html")
+    sub = "'Signalization activeted'"
 
+    f = os.popen(form_email_body(FATHER_EMAIL, sub))
     result = str(f.read())
     logger(result)
 
-    cmd = "echo "" > message-body.html"
+    f = os.popen(form_email_body(SON_EMAIL, sub))
+    result = str(f.read())
+    logger(result)
+
+    # f = os.popen(form_email_body(MOTHER_EMAIL, result))
+    # sub = str(f.read())
+    # logger(result)
+
+    cmd = "echo "" > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
+
+
+def form_ports_state():
+
 
 
 # Event logger
 def logger(message):
-    os.system("echo '" + message + "' >> log")
-    os.system("date >> log")
-    os.system("echo "" >> log")
+    os.system("echo '" + message + "' >> /root/signalization_project/log")
+    os.system("date >> /root/signalization_project/log")
+    os.system("echo "" >> /root/signalization_project/log")
 
     if DEBUG:
         print message
@@ -103,7 +144,7 @@ def logger(message):
 # Main function, basic init, gpio poll.
 def main():
 
-    cmd = "echo "" > message-body.html"
+    cmd = "echo "" > /root/signalization_project/message-body.html"
     os.system(cmd)
     logger(cmd)
 

@@ -21,11 +21,27 @@ def form_email_body(email, sub):
 # Input port setup.
 def set_gpios():
 
+    cmd = "echo 18 > /sys/class/gpio/export"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo in > /sys/class/gpio/gpio18/direction"
+    os.system(cmd)
+    logger(cmd)
+
     cmd = "echo 19 > /sys/class/gpio/export"
     os.system(cmd)
     logger(cmd)
 
-    cmd = "echo out > /sys/class/gpio/gpio19/direction"
+    cmd = "echo in > /sys/class/gpio/gpio19/direction"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo 20 > /sys/class/gpio/export"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo in > /sys/class/gpio/gpio20/direction"
     os.system(cmd)
     logger(cmd)
 
@@ -37,10 +53,19 @@ def set_gpios():
     os.system(cmd)
     logger(cmd)
 
+    cmd = "echo 22 > /sys/class/gpio/export"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo in > /sys/class/gpio/gpio22/direction"
+    os.system(cmd)
+    logger(cmd)
+
 
 # Method reading current state of input.
-def get_gpio_state():
-    f = os.popen("cat /sys/class/gpio/gpio21/value")
+def get_gpio_state(port):
+    cmd = "cat /sys/class/gpio/%s/value" % (port)
+    f = os.popen(cmd)
     return str(f.read())
 
 
@@ -96,11 +121,30 @@ def send_start_email():
     os.system(cmd)
     logger(cmd)
 
-    # html = ("<html>"
-		  #   "  <body>"
-		  #   "       <p>%s</p>"          
-		  #   "   </body>"
-    # 		"</html>") % (myText, link)  
+    port18_state = get_gpio_state("gpio18").strip()
+    port19_state = get_gpio_state("gpio19").strip()
+    port20_state = get_gpio_state("gpio20").strip()
+    port21_state = get_gpio_state("gpio21").strip()
+    port22_state = get_gpio_state("gpio22").strip()
+
+    port_states = ("<p>Port 18: type in, state %s"
+                   "<p>Port 19: type in, state %s"
+                   "<p>Port 20: type in, state %s"
+                   "<p>Port 21: type in, state %s"
+                   "<p>Port 22: type in, state %s") % (port18_state, port19_state, port20_state, port21_state, port22_state)
+
+
+    cmd = "cat '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "cat '%s' >> /root/signalization_project/message-body.html" % (port_states)
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "cat '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
 
     cmd = "date >> /root/signalization_project/message-body.html"
     os.system(cmd)
@@ -149,7 +193,7 @@ def main():
     logger(cmd)
 
     set_gpios()
-    current_input_state = get_gpio_state().strip()
+    current_input_state = get_gpio_state("gpio21").strip()
     logger("current state: " + current_input_state)
     send_start_email()
     logger("setup completed")
@@ -157,7 +201,7 @@ def main():
     var = 1
     while var == 1:
         previous_input_state = current_input_state
-        current_input_state = get_gpio_state().strip()
+        current_input_state = get_gpio_state("gpio21").strip()
         if current_input_state != previous_input_state:
             state = "%s%s" % (previous_input_state, current_input_state)
             logger("State changed: " + state)

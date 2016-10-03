@@ -150,7 +150,7 @@ def send_start_email():
     os.system(cmd)
     logger(cmd)
 
-    sub = "'Signalization activeted'"
+    sub = "'Signalization activated'"
 
     #  f = os.popen(form_email_body(FATHER_EMAIL, sub))
     #  result = str(f.read())

@@ -3,48 +3,56 @@
 		  <meta charset="utf-8">
 		  <title>Signalization</title>
 
-		  <style>
+		  <style type="text/css">
 			    .outer {
 				    background: #E1D8D8;
-				    margin: 10px;
-				    padding: 10px;
+				    padding-top: 10px;
+				    padding-left: 10px;
+				    padding-right: 10px;
 				    width: 200px;
 				    float: left;
-				    border: 1px solid black;
+				    border-left: 1px solid black;
+				    border-top: 1px solid black;
+				    border-right: 1px solid black;
 			    }
 			    .inner {
 				    background: #F5ECEC;
 				    padding: 10px;
-				    margin: 5px;
+				    margin-top: 5px;
+				    margin-right: 5px;
+				    margin-left: 5px;
 				    width: 168px;
 				    float: left;
-				    border: 1px solid black;
+				    border-left: 1px solid black;
+				    border-top: 1px solid black;
+				    border-right: 1px solid black;
 			    }
 			    .red_square {
 					width: 20px;
 					height: 20px;
-					margin: 5px;
+					margin-bottom: -5px;
+					margin-left: 5px;
 					border: 1px solid black;
 					background: red;
-					display: inline;
+					display: inline-block;
 				}
 				.green_square {
 					width: 20px;
 					height: 20px;
-					margin: 5px;
-					margin-left: 30px;
+					margin-bottom: -5px;
+					margin-left: 5px;
 					border: 1px solid black;
 					background: green;
-					display: inline;
+					display: inline-block;
 				}
 		  </style>
 	</head> 
 	<body>
 		<aside class="outer">
-			<div class="green_square">__</div>Power
-			<div class="red_square">__</div>Ready
+			<div class="green_square"></div>  Power
+			<div class="red_square"></div>  Ready
     		<aside class="inner">
-    			<p style="text-align: center">Signalization system activated</p>
+    			<p style="text-align: center">Programm is ready. Alarm state: activated</p>
     		</aside>
   		</aside>
 	</body>

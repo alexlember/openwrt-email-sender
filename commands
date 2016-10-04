@@ -1,3 +1,12 @@
+mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/test/test.html
+
+mailsend -v -sub "test" -from novokosino.home@gmail.com -t
+o alexlember@gmail.com -smtp smtp.gmail.com -port 587 -starttls -auth -user novokosino.home@gmai
+l.com -pass "pass" -cs ISO-8859-1 -content-type "multipart/related" -mime-type text/html -di
+sposition inline -enc-type "none" -attach "/root/signalization_project/signalization_alarm.html"
+ -mime-type image/png -enc-type "base64" -disposition inline -content-id "flash" -cs "none" -att
+ach "/root/signalization_project/flash.png"
+
 Input data:
  echo "YY" > /sys/class/gpio/export
  echo "out" > /sys/class/gpio/gpioYY/direction
@@ -7,3 +16,4 @@ Input data:
 Read port:
  cat /sys/class/gpio/gpioYY/value
  cat /sys/class/gpio/gpioXX/value
+

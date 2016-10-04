@@ -1,0 +1,72 @@
+<html>
+    <head>
+          <meta charset="utf-8">
+          <title>Signalization</title>
+
+          <style type="text/css">
+                .outer {
+                    background: #E1D8D8;
+                    padding-top: 10px;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    width: 200px;
+                    float: left;
+                    border-left: 1px solid black;
+                    border-top: 1px solid black;
+                    border-right: 1px solid black;
+                }
+                .inner {
+                    background: #f4425c;
+                    padding: 10px;
+                    margin-top: 5px;
+                    margin-right: 5px;
+                    margin-left: 5px;
+                    width: 168px;
+                    float: left;
+                    border-left: 1px solid black;
+                    border-top: 1px solid black;
+                    border-right: 1px solid black;
+                }
+                .red_square {
+                    width: 20px;
+                    height: 20px;
+                    margin-bottom: -5px;
+                    margin-left: 5px;
+                    border: 1px solid black;
+                    background: red;
+                    display: inline-block;
+                }
+                .green_square {
+                    width: 20px;
+                    height: 20px;
+                    margin-bottom: -5px;
+                    margin-left: 5px;
+                    border: 1px solid black;
+                    background: green;
+                    display: inline-block;
+                }
+                .transparent_square {
+                    width: 20px;
+                    height: 20px;
+                    margin-bottom: -5px;
+                    margin-left: 5px;
+                    background: #E1D8D8;
+                    display: inline-block;
+                }
+
+                p {
+                    text-align: center;
+                }
+          </style>
+    </head>
+    <body>
+        <aside class="outer">
+            <div class="green_square"></div>  Power
+            <div class="red_square"></div>  Ready
+            <div class="transparent_square"></div><img src="cid:flash" />
+            <aside class="inner">
+                <p>Warning Alarm!</p>
+            </aside>
+          </aside>
+    </body>
+</html>

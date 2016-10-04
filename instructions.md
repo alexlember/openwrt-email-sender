@@ -152,7 +152,8 @@ uname -a - спрака о версии ОС
 Команда по отправке письма с роутера:
 
 ```
-mailsend -to user@gmail.com -from user@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub test +cc +bc -v -user user@gmail.com -pass your_password
+mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/test/test.html
+
 ```
 
 

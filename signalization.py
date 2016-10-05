@@ -6,7 +6,7 @@ DEBUG = True
 
 FATHER_EMAIL = "xx@gmail.com"
 MOTHER_EMAIL = "yy@icloud.com"
-SON_EMAIL = "zz@gmail.com"
+SON_EMAIL = "yy@gmail.com"
 
 EMAIL_COMMAND = ("mailsend -to %s -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp "
                  "smtp.gmail.com -sub %s +cc +bc -v -user novokosino.home@gmail.com "
@@ -154,6 +154,56 @@ def send_start_email(current_input_state_alarm, current_input_state_activated):
     os.system(cmd)
     logger(cmd)
 
+    cmd = "echo '<h1>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "date >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '</h1>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    choose_picture(current_input_state_alarm, current_input_state_activated)
+
+    # f = os.popen(form_email_body(MOTHER_EMAIL, result, False))
+    # sub = str(f.read())
+    # logger(result)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
     port18_state = get_gpio_state("gpio18").strip()
     port19_state = get_gpio_state("gpio19").strip()
     port20_state = get_gpio_state("gpio20").strip()
@@ -165,29 +215,11 @@ def send_start_email(current_input_state_alarm, current_input_state_activated):
                    "<p>Port 20: type in, state %s</p>"
                    "<p>Port 21: type in, state %s</p>"
                    "<p>Port 22: type in, state %s</p>") % (
-                  port18_state, port19_state, port20_state, port21_state, port22_state)
+                      port18_state, port19_state, port20_state, port21_state, port22_state)
 
     cmd = "echo '%s' >> /root/signalization_project/message-body.html" % port_states
     os.system(cmd)
     logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<p>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "date >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '</p>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    choose_picture(current_input_state_alarm, current_input_state_activated)
 
     sub = "'Program is loaded.'"
 
@@ -198,10 +230,6 @@ def send_start_email(current_input_state_alarm, current_input_state_activated):
     f = os.popen(form_email_body(SON_EMAIL, sub, False))
     result = str(f.read())
     logger(result)
-
-    # f = os.popen(form_email_body(MOTHER_EMAIL, result, False))
-    # sub = str(f.read())
-    # logger(result)
 
     cmd = "echo "" > /root/signalization_project/message-body.html"
     os.system(cmd)

@@ -1,14 +1,13 @@
-mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/test/test.html
-
-mailsend -v -sub "test" -from novokosino.home@gmail.com -to alexlember@gmail.com -smtp smtp.gmail.com -port 587 -starttls -auth -user novokosino.home@gmail.com -pass "pass" -cs ISO-8859-1 -content-type "multipart/related" -mime-type text/html -disposition inline -enc-type "none" -attach "/root/signalization_project/signalization_alarm.html" -mime-type image/png -enc-type "base64" -disposition inline -content-id "flash" -cs "none" -attach "/root/signalization_project/flash.png"
+mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user novokosino.home@gmail.com -pass 'uVm3k0Ke' -mime-type 'text/html' -msg-body /root/test/test.html
 
 Input data:
- echo "YY" > /sys/class/gpio/export
- echo "out" > /sys/class/gpio/gpioYY/direction
- echo "0" > /sys/class/gpio/gpioYY/value
- echo "1" > /sys/class/gpio/gpioYY/value
+ echo "18" > /sys/class/gpio/export
+ echo "out" > /sys/class/gpio/gpio18/direction
+ echo "0" > /sys/class/gpio/gpio18/value
+ echo "1" > /sys/class/gpio/gpio18/value
 
 Read port:
- cat /sys/class/gpio/gpioYY/value
- cat /sys/class/gpio/gpioXX/value
+ cat /sys/class/gpio/gpio18/value
+ cat /sys/class/gpio/gpio19/value
+ cat /sys/class/gpio/gpio20/value
 

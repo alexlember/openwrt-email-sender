@@ -4,74 +4,33 @@ import time
 
 DEBUG = True
 
-FATHER_EMAIL = "xx@gmail.com"
-MOTHER_EMAIL = "yy@icloud.com"
-SON_EMAIL = "yy@gmail.com"
+FATHER_EMAIL = "diamonder69gmail.com"
+MOTHER_EMAIL = "lonata@icloud.com"
+SON_EMAIL = "alexlember@gmail.com"
 
 EMAIL_COMMAND = ("mailsend -to %s -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp "
                  "smtp.gmail.com -sub %s +cc +bc -v -user novokosino.home@gmail.com "
                  "-pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html")
 
-EMAIL_PICTURE_COMMAND = ("mailsend -v -to %s -from novokosino.home@gmail.com -sub %s -smtp "
-                         "smtp.gmail.com -port 587 -starttls -auth -user novokosino.home@gmail.com "
-                         "-pass 'pass' -cs ISO-8859-1 -content-type 'multipart/related' -mime-type text/html "
-                         "-disposition inline -enc-type 'none' -attach "
-                         "'/root/signalization_project/signalization_alarm.html' "
-                         "-mime-type image/png -enc-type 'base64' -disposition inline -content-id 'flash' -cs 'none' "
-                         " -attach '/root/signalization_project/flash.png'")
+alarm_state = False
 
 
-def form_email_body(email, sub, with_picture):
-    if with_picture:
-        email_command = EMAIL_PICTURE_COMMAND % (email, sub)
-    else:
-        email_command = EMAIL_COMMAND % (email, sub)
+def form_email_body(email, sub):
+    email_command = EMAIL_COMMAND % (email, sub)
     return email_command
 
 
 # All port setup as input (+external 10k pull-up resistors, default value for each port should be high).
 def set_gpios():
-    # Signalization indicator: 1 - everything ok, 0 - signalization alert.
-    cmd = "echo 18 > /sys/class/gpio/export"
-    os.system(cmd)
-    logger(cmd)
 
-    cmd = "echo in > /sys/class/gpio/gpio18/direction"
-    os.system(cmd)
-    logger(cmd)
+    for x in range(18, 22):
+        cmd = "echo %s > /sys/class/gpio/export" % str(x)
+        os.system(cmd)
+        logger(cmd)
 
-    # Signalization turn on/off indicator: 1 - turned off, 0 - turned on.
-    cmd = "echo 19 > /sys/class/gpio/export"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo in > /sys/class/gpio/gpio19/direction"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo 20 > /sys/class/gpio/export"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo in > /sys/class/gpio/gpio20/direction"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo 21 > /sys/class/gpio/export"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo in > /sys/class/gpio/gpio21/direction"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo 22 > /sys/class/gpio/export"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo in > /sys/class/gpio/gpio22/direction"
-    os.system(cmd)
-    logger(cmd)
+        cmd = "echo in > /sys/class/gpio/gpio%s/direction" % str(x)
+        os.system(cmd)
+        logger(cmd)
 
 
 # Method reading current state of input.
@@ -85,28 +44,41 @@ def get_gpio_state(port):
 def send_email(state_change, is_alarm):
 
     if is_alarm:
-        sub = "'Alarm!!!'"
+        if state_change.strip() == str("10"):
+            cmd = "cat /root/signalization_project/signalization_alarm.html >> /root/signalization_project/message-body.html"
+            sub = "'Alarm!!! Alarm!!! Alarm!!!'"
+            os.system(cmd)
+            logger(cmd)
 
-        f = os.popen(form_email_body(FATHER_EMAIL, sub, True))
-        result = str(f.read())
-        logger(result)
+            for x in range(0, 7):
+                cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+                os.system(cmd)
+                logger(cmd)
 
-        f = os.popen(form_email_body(SON_EMAIL, sub, True))
-        result = str(f.read())
-        logger(result)
+            cmd = "date >> /root/signalization_project/message-body.html"
+            os.system(cmd)
+            logger(cmd)
 
-        # f = os.popen(form_email_body(MOTHER_EMAIL, sub, False)
-        # result = str(f.read())
-        # logger(result)
+            f = os.popen(form_email_body(FATHER_EMAIL, sub))
+            result = str(f.read())
+            logger(result)
+
+            f = os.popen(form_email_body(SON_EMAIL, sub))
+            result = str(f.read())
+            logger(result)
+
+            # f = os.popen(form_email_body(MOTHER_EMAIL, sub, False)
+            # result = str(f.read())
+            # logger(result)
 
     else:
         sub = form_message_body(state_change)
 
-        f = os.popen(form_email_body(FATHER_EMAIL, sub, False))
+        f = os.popen(form_email_body(FATHER_EMAIL, sub))
         result = str(f.read())
         logger(result)
 
-        f = os.popen(form_email_body(SON_EMAIL, sub, False))
+        f = os.popen(form_email_body(SON_EMAIL, sub))
         result = str(f.read())
         logger(result)
 
@@ -121,26 +93,24 @@ def send_email(state_change, is_alarm):
 
 # Method for form message-body
 def form_message_body(state_change):
-    cmd = "cat /root/signalization_project/warning.html > /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
     sub = ""
 
     if state_change.strip() == str("01"):
         cmd = "cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html"
-        sub = "'State changed from low to high'"
+        sub = "'Alarm state: deactivated'"
         os.system(cmd)
         logger(cmd)
 
     elif state_change.strip() == str("10"):
         cmd = "cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html"
-        sub = "'State changed from high to low'"
+        sub = "'Alarm state: activated'"
         os.system(cmd)
         logger(cmd)
 
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
+    for x in range(0, 7):
+        cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+        os.system(cmd)
+        logger(cmd)
 
     cmd = "date >> /root/signalization_project/message-body.html"
     os.system(cmd)
@@ -154,55 +124,16 @@ def send_start_email(current_input_state_alarm, current_input_state_activated):
     os.system(cmd)
     logger(cmd)
 
-    cmd = "echo '<h1>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "date >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '</h1>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
     choose_picture(current_input_state_alarm, current_input_state_activated)
 
     # f = os.popen(form_email_body(MOTHER_EMAIL, result, False))
     # sub = str(f.read())
     # logger(result)
 
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
-
-    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-    os.system(cmd)
-    logger(cmd)
+    for x in range(0, 7):
+        cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+        os.system(cmd)
+        logger(cmd)
 
     port18_state = get_gpio_state("gpio18").strip()
     port19_state = get_gpio_state("gpio19").strip()
@@ -221,13 +152,21 @@ def send_start_email(current_input_state_alarm, current_input_state_activated):
     os.system(cmd)
     logger(cmd)
 
-    sub = "'Program is loaded.'"
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
 
-    f = os.popen(form_email_body(FATHER_EMAIL, sub, False))
+    cmd = "date >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+    logger(cmd)
+
+    sub = "'Program initialization'"
+
+    f = os.popen(form_email_body(FATHER_EMAIL, sub))
     result = str(f.read())
     logger(result)
 
-    f = os.popen(form_email_body(SON_EMAIL, sub, False))
+    f = os.popen(form_email_body(SON_EMAIL, sub))
     result = str(f.read())
     logger(result)
 
@@ -268,32 +207,46 @@ def main():
 
     set_gpios()
 
-    current_input_state_alarm = get_gpio_state("gpio18").strip()
-    logger("current alarm state: " + current_input_state_alarm)
-
     current_input_state_activated = get_gpio_state("gpio19").strip()
     logger("current activation state: " + current_input_state_activated)
 
+    current_input_state_alarm = get_gpio_state("gpio20").strip()
+    logger("current alarm state: " + current_input_state_alarm)
+
     send_start_email(current_input_state_alarm, current_input_state_activated)
     logger("setup completed")
+
+    set_alarm_state(False)
 
     var = 1
     while var == 1:
         previous_input_state_alarm = current_input_state_alarm
         previous_input_state_activated = current_input_state_activated
 
-        current_input_state_alarm = get_gpio_state("gpio18").strip()
         current_input_state_activated = get_gpio_state("gpio19").strip()
+        current_input_state_alarm = get_gpio_state("gpio20").strip()
 
-        if current_input_state_activated != previous_input_state_activated:
+        if current_input_state_alarm != previous_input_state_alarm:
+            new_alarm_state = not get_alarm_state()
+            set_alarm_state(new_alarm_state)
+            state_alarm = "%s%s" % (previous_input_state_alarm, current_input_state_alarm)
+            logger("State alarm changed: " + state_alarm)
+            send_email(state_alarm, True)
+
+        if current_input_state_activated != previous_input_state_activated and get_alarm_state() is False:
             state_activated = "%s%s" % (previous_input_state_activated, current_input_state_activated)
             logger("State activated changed: " + state_activated)
             send_email(state_activated, False)
 
-        if current_input_state_alarm != previous_input_state_alarm:
-            state_alarm = "%s%s" % (previous_input_state_alarm, current_input_state_alarm)
-            logger("State alarm changed: " + state_alarm)
-            send_email(state_alarm, True)
+
+def set_alarm_state(state):
+    global alarm_state
+    alarm_state = state
+
+
+def get_alarm_state():
+    global alarm_state
+    return alarm_state
 
 # Main cycle start
 main()

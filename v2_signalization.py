@@ -5,12 +5,12 @@ import time
 # Active constants
 DEBUG = True
 
-FATHER_EMAIL = "diamonder69gmail.com"
-MOTHER_EMAIL = "lonata@icloud.com"
-SON_EMAIL = "alexlember@gmail.com"
+FATHER_EMAIL = "xxxgmail.com"
+MOTHER_EMAIL = "yyy@icloud.com"
+SON_EMAIL = "zzz@gmail.com"
 
-EMAIL_COMMAND = ("mailsend -to %s -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp "
-                 "smtp.gmail.com -sub %s +cc +bc -v -user novokosino.home@gmail.com "
+EMAIL_COMMAND = ("mailsend -to %s -from test@gmail.com -starttls -port 587 -auth -smtp "
+                 "smtp.gmail.com -sub %s +cc +bc -v -user test@gmail.com "
                  "-pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html")
 
 GREETING_SUB = "'Program initialization'"
@@ -27,10 +27,12 @@ GPIO_STATE_HIGH_TO_LOW = "10"
 # Private field
 alert_state = False
 
+
 # Getter
 def get_alert_state():
     global alert_state
     return alert_state
+
 
 # Setter
 def set_alert_state(state):
@@ -53,7 +55,6 @@ def main():
     logger("current alert state: " + current_input_state_alert)
 
     choose_alert_state(current_input_state_alert)
-
     logger("Alert state global var: %s" % get_alert_state())
 
     send_start_email(current_input_state_alert, current_input_state_activated)
@@ -68,7 +69,7 @@ def main():
         current_input_state_activated = get_gpio_state("gpio19")
         current_input_state_alert = get_gpio_state("gpio20")
 
-        if get_alert_state == True:
+        if get_alert_state():
             if current_input_state_alert != previous_input_state_alert:
                 set_alert_state(False)
                 logger("State alert changed to False")
@@ -81,6 +82,8 @@ def main():
             if current_input_state_alert == GPIO_STATE_LOW:
                 logger("Alert GPIO went to low! Alert!")
                 set_alert_state(True)
+                logger("Alert state global var: %s" % get_alert_state())
+
                 send_email(state_activated, True)
             else:
                 send_email(state_activated, False)
@@ -126,7 +129,8 @@ def send_start_email(current_input_state_alert, current_input_state_activated):
     choose_picture(current_input_state_alert, current_input_state_activated)
 
     for x in range(0, 7):
-        exec_cmd("echo '<br>' >> /root/signalization_project/message-body.html")
+        cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+        os.system(cmd)
 
     port18_state = get_gpio_state("gpio18").strip()
     port19_state = get_gpio_state("gpio19").strip()
@@ -141,8 +145,13 @@ def send_start_email(current_input_state_alert, current_input_state_activated):
                    "<p>Port 22: type in, state %s</p>") % (
                    port18_state, port19_state, port20_state, port21_state, port22_state)
 
-    exec_cmd("echo '%s' >> /root/signalization_project/message-body.html" % port_states)
-    exec_cmd("echo '<br>' >> /root/signalization_project/message-body.html")
+    cmd = "echo '%s' >> /root/signalization_project/message-body.html" % port_states
+    os.system(cmd)
+    logger(cmd)
+
+    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+    os.system(cmd)
+
     exec_cmd("date >> /root/signalization_project/message-body.html")
 
     f = os.popen(form_email_body(FATHER_EMAIL, GREETING_SUB))
@@ -177,6 +186,7 @@ def choose_picture(current_input_state_alert, current_input_state_activated):
     else:
         logger("Exception: unexpected alert state.")
 
+
 def form_email_body(email, sub):
     email_command = EMAIL_COMMAND % (email, sub)
     return email_command
@@ -190,7 +200,8 @@ def send_email(state_change, is_alert):
         sub = ALERT_SUB
 
         for x in range(0, 7):
-            exec_cmd("echo '<br>' >> /root/signalization_project/message-body.html")
+            cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+            os.system(cmd)
 
         exec_cmd("date >> /root/signalization_project/message-body.html")
     else:
@@ -224,7 +235,8 @@ def form_message_body_and_sub(state_change):
         sub = ACTIVATED_SUB
 
     for x in range(0, 7):
-        exec_cmd("echo '<br>' >> /root/signalization_project/message-body.html")
+        cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
+        os.system(cmd)
 
     exec_cmd("date >> /root/signalization_project/message-body.html")
 

@@ -1,4 +1,4 @@
-mailsend -to alexlember@gmail.com -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user novokosino.home@gmail.com -pass 'uVm3k0Ke' -mime-type 'text/html' -msg-body /root/test/test.html
+mailsend -to test@gmail.com -from test@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user test@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/signalization_off.html
 
 Input data:
  echo "18" > /sys/class/gpio/export

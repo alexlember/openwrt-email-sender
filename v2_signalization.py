@@ -72,7 +72,7 @@ def main():
             if current_input_state_alert != previous_input_state_alert:
                 set_alert_state(False)
                 logger("State alert changed to False")
-                send_email(GPIO_STATE_LOW_TO_HIGH, True)
+                send_email(GPIO_STATE_LOW_TO_HIGH, False)
 
         if current_input_state_activated != previous_input_state_activated:
             state_activated = "%s%s" % (previous_input_state_activated, current_input_state_activated)

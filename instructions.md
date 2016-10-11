@@ -202,7 +202,10 @@ which python
 
 Пока сделана быстрая реализация на коленке по статье http://askubuntu.com/questions/228304/how-do-i-run-a-script-at-start-up
 По пути /etc/rc.local в файл добавлена строка:
+
+```
 /usr/bin/python /root/signalization_project/signalization.py
+```
 
 Кроме того, все пути в файле signalization.py объявлены как абсолютные. Конечно, их необходимо вынести в конфиги, но потом.
 При загрузке программа крутится как демон на background, для просмотра событий можно заглянуть в логи:

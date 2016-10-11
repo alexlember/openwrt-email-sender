@@ -132,11 +132,11 @@ def send_start_email(current_input_state_alert, current_input_state_activated):
         cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
         os.system(cmd)
 
-    port18_state = get_gpio_state("gpio18").strip()
-    port19_state = get_gpio_state("gpio19").strip()
-    port20_state = get_gpio_state("gpio20").strip()
-    port21_state = get_gpio_state("gpio21").strip()
-    port22_state = get_gpio_state("gpio22").strip()
+    port18_state = get_gpio_state("gpio18")
+    port19_state = get_gpio_state("gpio19")
+    port20_state = get_gpio_state("gpio20")
+    port21_state = get_gpio_state("gpio21")
+    port22_state = get_gpio_state("gpio22")
 
     port_states = ("<p>Port 18: type in, state %s</p>"
                    "<p>Port 19: type in, state %s</p>"

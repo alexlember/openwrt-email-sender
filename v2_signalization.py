@@ -110,7 +110,7 @@ def logger(message):
 # All port setup as input (+external 10k pull-up resistors, default value for each port should be high).
 def set_gpios():
 
-    for x in range(18, 22):
+    for x in range(18, 23):
         exec_cmd("echo %s > /sys/class/gpio/export" % str(x))
         exec_cmd("echo in > /sys/class/gpio/gpio%s/direction" % str(x))
 

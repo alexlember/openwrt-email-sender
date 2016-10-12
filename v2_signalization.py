@@ -1,5 +1,5 @@
 import os
-
+import atexit
 import time
 
 # Active constants
@@ -13,9 +13,10 @@ EMAIL_COMMAND = ("mailsend -to %s -from test@gmail.com -starttls -port 587 -auth
                  "smtp.gmail.com -sub %s +cc +bc -v -user test@gmail.com "
                  "-pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html")
 
-GREETING_SUB = "'Program initialization'"
-DEACTIVATED_SUB = "'Signalization state: deactivated'"
-ACTIVATED_SUB = "'Signalization state: activated'"
+
+GREETING_SUB = "'Initialized'"
+DEACTIVATED_SUB = "'Deactivated'"
+ACTIVATED_SUB = "'Activated'"
 ALERT_SUB = "'Alert!!! Alert!!! Alert!!!'"
 
 # Constants
@@ -45,6 +46,7 @@ def set_alert_state(state):
 
 # Main function, basic init, gpio poll.
 def main():
+    atexit.register(exit_handler)
     exec_cmd("echo "" > /root/signalization_project/message-body.html")
     set_gpios()
 
@@ -76,6 +78,12 @@ def main():
                 send_email(GPIO_STATE_LOW_TO_HIGH, False)
 
         if current_input_state_activated != previous_input_state_activated:
+
+            time.sleep(0.05)
+            # contact bounce
+            current_input_state_activated = get_gpio_state("gpio19")
+            current_input_state_alert = get_gpio_state("gpio20")
+
             state_activated = "%s%s" % (previous_input_state_activated, current_input_state_activated)
             logger("State activated changed: " + state_activated)
 
@@ -153,18 +161,20 @@ def send_start_email(current_input_state_alert, current_input_state_activated):
     os.system(cmd)
 
     exec_cmd("date >> /root/signalization_project/message-body.html")
+    try:
+        f = os.popen(form_email_body(FATHER_EMAIL, GREETING_SUB))
+        result = str(f.read())
+        logger(result)
 
-    f = os.popen(form_email_body(FATHER_EMAIL, GREETING_SUB))
-    result = str(f.read())
-    logger(result)
+        f = os.popen(form_email_body(SON_EMAIL, GREETING_SUB))
+        result = str(f.read())
+        logger(result)
 
-    f = os.popen(form_email_body(SON_EMAIL, GREETING_SUB))
-    result = str(f.read())
-    logger(result)
-
-    # f = os.popen(form_email_body(MOTHER_EMAIL, GREETING_SUB))
-    # sub = str(f.read())
-    # logger(result)
+        # f = os.popen(form_email_body(MOTHER_EMAIL, GREETING_SUB))
+        # sub = str(f.read())
+        # logger(result)
+    except Exception as ex:
+        logger("Unexpected error: " + str(ex))
 
     exec_cmd("echo "" > /root/signalization_project/message-body.html")
 
@@ -207,17 +217,20 @@ def send_email(state_change, is_alert):
     else:
         sub = form_message_body_and_sub(state_change)
 
-    f = os.popen(form_email_body(FATHER_EMAIL, sub))
-    result = str(f.read())
-    logger(result)
+    try:
+        f = os.popen(form_email_body(FATHER_EMAIL, sub))
+        result = str(f.read())
+        logger(result)
 
-    f = os.popen(form_email_body(SON_EMAIL, sub))
-    result = str(f.read())
-    logger(result)
+        f = os.popen(form_email_body(SON_EMAIL, sub))
+        result = str(f.read())
+        logger(result)
 
-    # f = os.popen(form_email_body(MOTHER_EMAIL, sub, False)
-    # result = str(f.read())
-    # logger(result)
+        # f = os.popen(form_email_body(MOTHER_EMAIL, sub, False)
+        # result = str(f.read())
+        # logger(result)
+    except Exception as ex:
+        logger("Unexpected error: " + str(ex))
 
     exec_cmd("echo "" > /root/signalization_project/message-body.html")
 
@@ -241,6 +254,10 @@ def form_message_body_and_sub(state_change):
     exec_cmd("date >> /root/signalization_project/message-body.html")
 
     return sub
+
+
+def exit_handler():
+    logger('Program exited')
 
 
 # Main cycle start

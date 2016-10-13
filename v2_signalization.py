@@ -65,6 +65,13 @@ def main():
     # infinity loop
     var = 1
     while var == 1:
+
+        port22_state = get_gpio_state("gpio22")
+        if port22_state == GPIO_STATE_LOW:
+            os.system("echo '1' > /sys/class/gpio/gpio22/value")
+        else:
+            os.system("echo '0' > /sys/class/gpio/gpio22/value")
+
         previous_input_state_activated = current_input_state_activated
         previous_input_state_alert = current_input_state_alert
 
@@ -79,7 +86,7 @@ def main():
 
         if current_input_state_activated != previous_input_state_activated:
 
-            time.sleep(0.05)
+            #time.sleep(0.05)
             # contact bounce
             current_input_state_activated = get_gpio_state("gpio19")
             current_input_state_alert = get_gpio_state("gpio20")
@@ -118,9 +125,12 @@ def logger(message):
 # All port setup as input (+external 10k pull-up resistors, default value for each port should be high).
 def set_gpios():
 
-    for x in range(18, 23):
+    for x in range(18, 22):
         exec_cmd("echo %s > /sys/class/gpio/export" % str(x))
         exec_cmd("echo in > /sys/class/gpio/gpio%s/direction" % str(x))
+
+    exec_cmd("echo 22 > /sys/class/gpio/export")
+    exec_cmd("echo out > /sys/class/gpio/gpio2/direction")
 
 
 # Method reading current state of input.
@@ -150,7 +160,7 @@ def send_start_email(current_input_state_alert, current_input_state_activated):
                    "<p>Port 19: type in, state %s</p>"
                    "<p>Port 20: type in, state %s</p>"
                    "<p>Port 21: type in, state %s</p>"
-                   "<p>Port 22: type in, state %s</p>") % (
+                   "<p>Port 22: type out, state %s</p>") % (
                    port18_state, port19_state, port20_state, port21_state, port22_state)
 
     cmd = "echo '%s' >> /root/signalization_project/message-body.html" % port_states

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 # Active constants
 DEBUG=true
 
@@ -46,9 +45,7 @@ function choose_alert_state {
     else
         alert_state=true
     fi
-}wwe
-
-
+}
 
 # Method reading current state of input.
 # $1 - port number to check state.
@@ -135,65 +132,41 @@ function form_email_body {
 }
 
 # Main send mail method (on state change)
+# $1 state changed
 function send_email {
-    echo "Send email"
-}
-#def send_email(state_change, is_alert):
-#    if is_alert:
-#        exec_cmd(
-#            "cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html")
-#        sub = ALERT_SUB
-#
-#        for x in range(0, 7):
-#            cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-#            os.system(cmd)
-#
-#        exec_cmd("date >> /root/signalization_project/message-body.html")
-#    else:
-#        sub = form_message_body_and_sub(state_change)
-#
-#    try:
-#        cmd = form_email_body(FATHER_EMAIL, sub)
-#        logger("Point 0.5")
-#        f = os.popen(cmd)
-#        logger("Point 1")
-#        result = str(f.read())
-#        logger("Point2")
-#        logger(result)
-#    except Exception as ex:
-#        logger("Father unexpected error: " + str(ex))
-#
-#    try:
-#        cmd = form_email_body(SON_EMAIL, sub)
-#        logger("Point 2.5")
-#        f = os.popen(cmd)
-#        logger("Point3")
-#        result = str(f.read())
-#        logger("Point4")
-#        logger(result)
-#
-#    except Exception as ex:
-#        logger("Son unexpected error: " + str(ex))
-#
-#    try:
-#        cmd = form_email_body(MOTHER_EMAIL, sub)
-#        logger("Point5")
-#        f = os.popen(cmd)
-#        logger("Point 6")
-#        result = str(f.read())
-#        logger("Point 7")
-#        logger(result)
-#
-#    except Exception as ex:
-#        logger("Son unexpected error: " + str(ex))
-#
-#    exec_cmd("echo "" > /root/signalization_project/message-body.html")
+    if [ is_alert = true ]
+    then
+        cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html
+        logger "cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html"
+        sub=ALERT_SUB
+        for i in 0 1 2 3 4 5 6
+        do
+            echo '<br>' >> /root/signalization_project/message-body.html
+        done
+        date >> /root/signalization_project/message-body.html
+        logger "date >> /root/signalization_project/message-body.html"
+    else
+        sub="$(form_message_body_and_sub $1)"
+        cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
+        sub=ACTIVATED_SUB
+    fi
 
+    cmd="$(form_email_body FATHER_EMAIL sub)"
+    logger cmd
+
+    cmd="$(form_email_body MOTHER_EMAIL sub)"
+    logger cmd
+
+    cmd="$(form_email_body SON_EMAIL sub)"
+    logger cmd
+
+    echo "" > /root/signalization_project/message-body.html
+
+}
 
 # Method for form message-body
 # $1 - state_changed
-function form_message_body_and_sub() {
-    echo "Form message body"
+function form_message_body_and_sub {
     if [ $1 = GPIO_STATE_LOW_TO_HIGH ]
     then
         cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html

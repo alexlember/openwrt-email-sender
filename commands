@@ -1,13 +1,13 @@
 mailsend -to test@gmail.com -from test@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub 'test' +cc +bc -v -user test@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/signalization_off.html
 
 Input data:
- echo "18" > /sys/class/gpio/export
- echo "out" > /sys/class/gpio/gpio18/direction
- echo "0" > /sys/class/gpio/gpio18/value
- echo "1" > /sys/class/gpio/gpio18/value
+ echo "22" > /sys/class/gpio/export
+ echo "out" >/sys/class/gpio/gpio22/direction
+ echo "0" > /sys/class/gpio/gpio22/value
+ echo "1" > /sys/class/gpio/gpio22/value
 
 Read port:
- cat /sys/class/gpio/gpio18/value
  cat /sys/class/gpio/gpio19/value
  cat /sys/class/gpio/gpio20/value
+ cat /sys/class/gpio/gpio22/value
 

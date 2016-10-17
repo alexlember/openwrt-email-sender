@@ -55,67 +55,50 @@ function get_gpio_state {
 }
 
 # Greeting method send main at startup.
+# $1 - current_input_state_alert, $2 - current_input_state_activated
 function send_start_email {
-    echo "Send start email"
+    cat /root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html
+    logger "/root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html"
+    choose_picture $1 $2
+    for i in 0 1 2 3 4 5 6
+    do
+        echo '<br>' >> /root/signalization_project/message-body.html
+    done
+
+    port18_state = get_gpio_state "gpio18"
+    port19_state = get_gpio_state "gpio19"
+    port20_state = get_gpio_state "gpio20"
+    port21_state = get_gpio_state "gpio21"
+    port22_state = get_gpio_state "gpio22"
+
+    port_states = "<p>Port 18: type in, state ${port18_state}</p><p>Port 19: type in, state ${port19_state}</p><p>Port 20: type in, state ${port20_state}</p><p>Port 21: type in, state ${port21_state}</p><p>Port 22: type out, state ${port22_state}</p>"
+    echo "${port_states}" >> /root/signalization_project/message-body.html
+    logger "echo "${port_states}" >> /root/signalization_project/message-body.html"
+    echo '<br>' >> /root/signalization_project/message-body.html
+    date >> /root/signalization_project/message-body.html
+
+    cmd="$(form_email_body FATHER_EMAIL GREETING_SUB)"
+    logger cmd
+
+    cmd="$(form_email_body MOTHER_EMAIL GREETING_SUB)"
+    logger cmd
+
+    cmd="$(form_email_body SON_EMAIL GREETING_SUB)"
+    logger cmd
+
+    echo "" > /root/signalization_project/message-body.html
+
 }
-
-#def send_start_email(current_input_state_alert, current_input_state_activated):
-#    exec_cmd("cat /root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html")
-#
-#    choose_picture(current_input_state_alert, current_input_state_activated)
-#
-#    for x in range(0, 7):
-#        cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-#        os.system(cmd)
-#
-#    port18_state = get_gpio_state("gpio18")
-#    port19_state = get_gpio_state("gpio19")
-#    port20_state = get_gpio_state("gpio20")
-#    port21_state = get_gpio_state("gpio21")
-#    port22_state = get_gpio_state("gpio22")
-#
-#    port_states = ("<p>Port 18: type in, state %s</p>"
-#                   "<p>Port 19: type in, state %s</p>"
-#                   "<p>Port 20: type in, state %s</p>"
-#                   "<p>Port 21: type in, state %s</p>"
-#                   "<p>Port 22: type out, state %s</p>") % (
-#                      port18_state, port19_state, port20_state, port21_state, port22_state)
-#
-#    cmd = "echo '%s' >> /root/signalization_project/message-body.html" % port_states
-#    os.system(cmd)
-#    logger(cmd)
-#
-#    cmd = "echo '<br>' >> /root/signalization_project/message-body.html"
-#    os.system(cmd)
-#
-#    exec_cmd("date >> /root/signalization_project/message-body.html")
-#    try:
-#        f = os.popen(form_email_body(FATHER_EMAIL, GREETING_SUB))
-#        result = str(f.read())
-#        logger(result)
-#
-#        f = os.popen(form_email_body(SON_EMAIL, GREETING_SUB))
-#        result = str(f.read())
-#        logger(result)
-#
-#        f = os.popen(form_email_body(MOTHER_EMAIL, GREETING_SUB))
-#        logger(result)
-#    except Exception as ex:
-#        logger("Unexpected error: " + str(ex))
-#
-#    exec_cmd("echo "" > /root/signalization_project/message-body.html")
-
-
 
 # Choose the initializing picture in order of port states.
 # $1 - current_input_state_alert, $2 - current_input_state_activated
 function choose_picture {
-    if [ current_input_state_alert = GPIO_STATE_HIGH ]
+    if [ $1 = GPIO_STATE_HIGH ]
     then
-        if [ current_input_state_activated = GPIO_STATE_HIGH ]
+        if [ $2 = GPIO_STATE_HIGH ]
         then
             cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html
-        elif [ current_input_state_activated = GPIO_STATE_LOW ]
+        elif [ $2 = GPIO_STATE_LOW ]
         then
             cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
         fi
@@ -200,78 +183,80 @@ function set_gpios {
 
 # Main function, basic init, gpio poll.
 function main {
+    echo "" > /root/signalization_project/message-body.html
+    set_gpios
+    current_input_state_activated = "${get_gpio_state "gpio19"}"
+    logger "current activation state: ${current_input_state_activated}"
 
+    current_input_state_alert = "${get_gpio_state "gpio20"}"
+    logger "current activation state: ${current_input_state_alert}"
 
+    choose_alert_state "${current_input_state_alert}"
+    logger("Alert state global var: ${get_alert_state}")
+
+    send_start_email "${current_input_state_alert}" "${current_input_state_activated}"
+    logger "setup completed"
+
+    green_led_is_on=true
+    i=0
+    while :
+    do
+        if [ "$i" = 10 ]  
+        then    
+            if [ "$green_led_is_on" = true ] ; then
+            green_led_is_on=false
+            echo 0 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
+
+            else
+                green_led_is_on=true
+                echo 1 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
+            fi
+        else 
+            i=i+1
+        fi
+
+        port22_state = "${get_gpio_state "gpio22}"
+        if [ "$port22_state" = GPIO_STATE_LOW ]  
+        then    
+            echo '1' > /sys/class/gpio/gpio22/value
+        else
+            echo '0' > /sys/class/gpio/gpio22/value
+        fi
+
+        previous_input_state_activated = "${current_input_state_activated}"
+        previous_input_state_alert = "${current_input_state_alert}"
+
+        current_input_state_activated = get_gpio_state "gpio19"
+        current_input_state_alert = get_gpio_state "gpio20" 
+
+        if [ "$get_alert_state" = true ]  
+        then    
+            if [ current_input_state_alert != "${previous_input_state_alert}" ] ; then
+                alert_state=false
+                logger "State alert changed to False"
+                send_email GPIO_STATE_LOW_TO_HIGH false
+            fi
+        fi
+
+        if [ current_input_state_activated != "${previous_input_state_activated}" ] ; then
+
+            current_input_state_activated = get_gpio_state "gpio19"
+            current_input_state_alert = get_gpio_state "gpio20"
+
+            state_activated = "${previous_input_state_activated}" $"{current_input_state_activated}"
+            logger "State activated changed: ${state_activated}"
+
+            if [ current_input_state_alert = GPIO_STATE_LOW ] ; then
+                logger "Alert GPIO went to low! Alert!"
+                set_alert_state=true
+                logger "Alert state global var: ${alert_state}" 
+                send_email state_activated true
+            else
+                send_email state_activated false
+            fi
+        fi
+
+    done
 }
-#    atexit.register(exit_handler)
-#    exec_cmd("echo "" > /root/signalization_project/message-body.html")
-#    set_gpios()
-#
-#    current_input_state_activated = get_gpio_state("gpio19")
-#    logger("current activation state: " + current_input_state_activated)
-#
-#    current_input_state_alert = get_gpio_state("gpio20")
-#    logger("current alert state: " + current_input_state_alert)
-#
-#    choose_alert_state(current_input_state_alert)
-#    logger("Alert state global var: %s" % get_alert_state())
-#
-#    send_start_email(current_input_state_alert, current_input_state_activated)
-#    logger("setup completed")
-#
-#    is_on = True
-#    i = 0
-#    # infinity loop
-#    var = 1
-#    while var == 1:
-#        if i == 10:
-#            if is_on:
-#                os.system("echo 0 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness")
-#                is_on = False
-#            else:
-#                os.system("echo 1 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness")
-#                is_on = True
-#            i = 0
-#        else:
-#            i = i + 1
-#
-#        port22_state = get_gpio_state("gpio22")
-#        if port22_state == GPIO_STATE_LOW:
-#            os.system("echo '1' > /sys/class/gpio/gpio22/value")
-#        else:
-#            os.system("echo '0' > /sys/class/gpio/gpio22/value")
-#
-#        previous_input_state_activated = current_input_state_activated
-#        previous_input_state_alert = current_input_state_alert
-#
-#        current_input_state_activated = get_gpio_state("gpio19")
-#        current_input_state_alert = get_gpio_state("gpio20")
-#
-#        if get_alert_state():
-#            if current_input_state_alert != previous_input_state_alert:
-#                set_alert_state(False)
-#                logger("State alert changed to False")
-#                send_email(GPIO_STATE_LOW_TO_HIGH, False)
-#
-#        if current_input_state_activated != previous_input_state_activated:
-#            # time.sleep(0.05)
-#            # contact bounce
-#            current_input_state_activated = get_gpio_state("gpio19")
-#            current_input_state_alert = get_gpio_state("gpio20")
-#
-#            state_activated = "%s%s" % (previous_input_state_activated, current_input_state_activated)
-#            logger("State activated changed: " + state_activated)
-#
-#            if current_input_state_alert == GPIO_STATE_LOW:
-#                logger("Alert GPIO went to low! Alert!")
-#                set_alert_state(True)
-#                logger("Alert state global var: %s" % get_alert_state())
-#
-#                send_email(state_activated, True)
-#            else:
-#                send_email(state_activated, False)
-# Main cycle start
 
 main
-
-

@@ -31,15 +31,16 @@ function logger {
     date >> /root/signalization_project/log
     echo "" >> /root/signalization_project/log
 
-    if [ DEBUG = true ]; then
+    if [ $DEBUG = true ]; then
         echo $1
         date
         echo ""
     fi
 }
 
+# $1 - current_input_state_alert
 function choose_alert_state {
-    if [ current_input_state_alert = GPIO_STATE_HIGH ]
+    if [ $1 = $GPIO_STATE_HIGH ]
     then
         alert_state=false
     else
@@ -201,8 +202,8 @@ function main {
     i=0
     while :
     do
-        if [ "$i" = 10 ]  
-        then    
+        if [ "$i" = 10 ]
+        then
             if [ "$green_led_is_on" = true ] ; then
             green_led_is_on=false
             echo 0 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
@@ -211,52 +212,43 @@ function main {
                 green_led_is_on=true
                 echo 1 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
             fi
-        else 
+        else
             i=i+1
         fi
 
         port22_state = "${get_gpio_state "gpio22}"
-        if [ "$port22_state" = GPIO_STATE_LOW ]  
-        then    
+        if [ "$port22_state" = GPIO_STATE_LOW ]
+        then
             echo '1' > /sys/class/gpio/gpio22/value
         else
             echo '0' > /sys/class/gpio/gpio22/value
         fi
-
         previous_input_state_activated = "${current_input_state_activated}"
         previous_input_state_alert = "${current_input_state_alert}"
-
         current_input_state_activated = get_gpio_state "gpio19"
-        current_input_state_alert = get_gpio_state "gpio20" 
-
-        if [ "$get_alert_state" = true ]  
-        then    
+        current_input_state_alert = get_gpio_state "gpio20"
+        if [ "$get_alert_state" = true ]
+        then
             if [ current_input_state_alert != "${previous_input_state_alert}" ] ; then
                 alert_state=false
                 logger "State alert changed to False"
                 send_email GPIO_STATE_LOW_TO_HIGH false
             fi
         fi
-
         if [ current_input_state_activated != "${previous_input_state_activated}" ] ; then
-
             current_input_state_activated = get_gpio_state "gpio19"
             current_input_state_alert = get_gpio_state "gpio20"
-
             state_activated = "${previous_input_state_activated}" $"{current_input_state_activated}"
             logger "State activated changed: ${state_activated}"
-
             if [ current_input_state_alert = GPIO_STATE_LOW ] ; then
                 logger "Alert GPIO went to low! Alert!"
                 set_alert_state=true
-                logger "Alert state global var: ${alert_state}" 
+                logger "Alert state global var: ${alert_state}"
                 send_email state_activated true
             else
                 send_email state_activated false
             fi
         fi
-
     done
 }
-
 main

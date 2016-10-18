@@ -1,1 +1,1 @@
-# openwrt-email-sender# SwiftTest
+# openwrt-email-sender

@@ -35,8 +35,40 @@ function main {
     #echo "This is Main! $1 $DEBUG"
     #echo $DEBUG
 }
-res=$(get_date)
+
+function choose_picture {
+    #echo $1 $2
+    echo "blah blah $1 blah $2 "
+    if [ $1 = $GPIO_STATE_HIGH ]
+    then
+        if [ $2 = $GPIO_STATE_HIGH ]
+        then
+            cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html
+        elif [ $2 = $GPIO_STATE_LOW ]
+        then
+            cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
+        fi
+    else
+        logger "Exception: unexpected alert state."
+    fi
+}
+
+function test {
+    #echo $1 $2
+    choose_picture $1 $2
+}
+
+
+function get_gpio_state {
+    local port_state=$(cat commands)
+    echo ${port_state}
+}
+
+res=$(get_gpio_state)
 echo $res
+#test "one" "two"
+#res=$(get_date)
+#echo $res
 #res="$(get_date)"
 #get_date
 #echo $?

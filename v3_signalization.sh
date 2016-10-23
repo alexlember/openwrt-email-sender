@@ -26,7 +26,7 @@ alert_state=false
 
 # Event logger
 # $1 - message to log
-function logger {
+logger() {
     echo $1 >> /root/signalization_project/log
     date >> /root/signalization_project/log
     echo "" >> /root/signalization_project/log
@@ -39,7 +39,7 @@ function logger {
 }
 
 # $1 - current_input_state_alert
-function choose_alert_state {
+choose_alert_state() {
     if [ $1 = ${GPIO_STATE_HIGH} ]
     then
         alert_state=false
@@ -50,14 +50,14 @@ function choose_alert_state {
 
 # Method reading current state of input.
 # $1 - port number to check state.
-function get_gpio_state {
+get_gpio_state() {
     local port_state=$(cat /sys/class/gpio/$1/value)
     echo ${port_state}
 }
 
 # Choose the initializing picture in order of port states.
 # $1 - current_input_state_alert, $2 - current_input_state_activated
-function choose_picture {
+choose_picture() {
     if [ $1 = ${GPIO_STATE_HIGH} ]
     then
         if [ $2 = ${GPIO_STATE_HIGH} ]
@@ -74,7 +74,7 @@ function choose_picture {
 
 # Greeting method send main at startup.
 # $1 - current_input_state_alert, $2 - current_input_state_activated
-function send_start_email {
+send_start_email() {
     cat /root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html
     logger "/root/signalization_project/start-message-body.html > /root/signalization_project/message-body.html"
     choose_picture $1 $2
@@ -109,14 +109,14 @@ function send_start_email {
 
 # Func combines email recipient and subject with email cmd template
 # $1 - recipient, $2 - subject
-function form_email_body {
+form_email_body() {
     local email_command="mailsend -to $1 -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub $2 +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html"
     echo ${email_command}
 }
 
 # Main send mail method (on state change)
 # $1 state changed, $2 is_alert
-function send_email {
+send_email() {
     if [ $2 = true ]
     then
         cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html
@@ -149,7 +149,7 @@ function send_email {
 
 # Method for form message-body
 # $1 - state_changed
-function form_message_body_and_sub {
+form_message_body_and_sub() {
     if [ $1 = ${GPIO_STATE_LOW_TO_HIGH} ]
     then
         cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html
@@ -170,7 +170,7 @@ function form_message_body_and_sub {
 }
 
 # All port setup as input (+external 10k pull-up resistors, default value for each port should be high).
-function set_gpios {
+set_gpios() {
     for i in 18 19 20 21 22
     do
         echo ${i} > /sys/class/gpio/export
@@ -182,7 +182,7 @@ function set_gpios {
 }
 
 # Main function, basic init, gpio poll.
-function main {
+main() {
     echo "" > /root/signalization_project/message-body.html
     set_gpios
     current_input_state_activated=$(get_gpio_state "gpio19")
@@ -192,7 +192,7 @@ function main {
     logger "current activation state: $current_input_state_alert"
 
     choose_alert_state ${current_input_state_alert}
-    logger "Alert state global var: $get_alert_state"
+    logger "Alert state global var: $alert_state"
 
     send_start_email "$current_input_state_alert" "$current_input_state_activated"
     logger "setup completed"
@@ -222,12 +222,12 @@ function main {
         else
             echo '0' > /sys/class/gpio/gpio22/value
         fi
-        previous_input_state_activated = ${current_input_state_activated}
-        previous_input_state_alert = ${current_input_state_alert}
-        current_input_state_activated = $(get_gpio_state "gpio19")
-        current_input_state_alert = $(get_gpio_state "gpio20")
+        previous_input_state_activated=${current_input_state_activated}
+        previous_input_state_alert=${current_input_state_alert}
+        current_input_state_activated=$(get_gpio_state "gpio19")
+        current_input_state_alert=$(get_gpio_state "gpio20")
 
-        if [ ${get_alert_state} = true ]
+        if [ $alert_state = true ]
         then
             if [ current_input_state_alert != ${previous_input_state_alert} ] ; then
                 alert_state=false
@@ -252,4 +252,5 @@ function main {
         fi
     done
 }
+
 main

@@ -21,38 +21,29 @@ GPIO_STATE_HIGH_TO_LOW="10"
 
 # Private field
 alert_state=false
+sub=${GREETING_SUB}
 
 # ==================================================================================================================
 
-# Event logger
-# $1 - message to log
-logger() {
-    echo $1 >> /root/signalization_project/log
-    date >> /root/signalization_project/log
-    echo "" >> /root/signalization_project/log
-
-    if [ ${DEBUG} = true ]; then
-        echo $1
-        date
-        echo ""
-    fi
+# Func combines email recipient and subject with email cmd template
+# $1 - recipient, $2 - subject
+form_email_body() {
+    local email_command="mailsend -to $1 -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub $2 +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html"
+    echo ${email_command}
 }
 
-# $1 - current_input_state_alert
-choose_alert_state() {
-    if [ $1 = ${GPIO_STATE_HIGH} ]
+# Method for form message-body
+# $1 - state_changed
+form_message_body_and_sub () {
+    if [ $1 = ${GPIO_STATE_LOW_TO_HIGH} ]
     then
-        alert_state=false
-    else
-        alert_state=true
+        cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html
+        echo "${DEACTIVATED_SUB}"
+    elif [ $1 = ${GPIO_STATE_HIGH_TO_LOW} ]
+    then
+        cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
+        echo "${ACTIVATED_SUB}"
     fi
-}
-
-# Method reading current state of input.
-# $1 - port number to check state.
-get_gpio_state() {
-    local port_state=$(cat /sys/class/gpio/$1/value)
-    echo ${port_state}
 }
 
 # Choose the initializing picture in order of port states.
@@ -70,6 +61,43 @@ choose_picture() {
     else
         logger "Exception: unexpected alert state."
     fi
+}
+
+# Main send mail method (on state change)
+# $1 state changed, $2 is_alert
+send_email() {
+    if [ $2 = true ]
+    then
+        cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html
+        logger "cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html"
+        sub=${ALERT_SUB}
+    else
+        sub=$(form_message_body_and_sub $1)
+    fi
+
+    logger ${sub}
+
+    for i in 0 1 2 3 4 5 6
+    do
+        echo "<br>" >> /root/signalization_project/message-body.html
+    done
+
+    date >> /root/signalization_project/message-body.html
+    logger "date >> /root/signalization_project/message-body.html"
+
+    cmd=$(form_email_body ${FATHER_EMAIL} ${sub})
+    eval "${cmd}"
+    logger "$cmd"
+
+#    cmd=$(form_email_body $MOTHER_EMAIL $sub)
+#    eval "$cmd"
+#    logger "$cmd"
+
+    cmd=$(form_email_body ${SON_EMAIL} ${sub})
+    eval "${cmd}"
+    logger "$cmd"
+
+    echo "" > /root/signalization_project/message-body.html
 }
 
 # Greeting method send main at startup.
@@ -95,78 +123,36 @@ send_start_email() {
     echo "<br>" >> /root/signalization_project/message-body.html
     date >> /root/signalization_project/message-body.html
 
-    cmd=$(form_email_body FATHER_EMAIL GREETING_SUB)
-    logger ${cmd}
+    cmd=$(form_email_body ${FATHER_EMAIL} ${GREETING_SUB})
+    eval "${cmd}"
+    logger "$cmd"
 
-    cmd=$(form_email_body MOTHER_EMAIL GREETING_SUB)
-    logger ${cmd}
+#    cmd=$(form_email_body $MOTHER_EMAIL $GREETING_SUB)
+#    eval "$cmd"
+#    logger "$cmd"
 
-    cmd=$(form_email_body SON_EMAIL GREETING_SUB)
+    cmd=$(form_email_body ${SON_EMAIL} ${GREETING_SUB})
+    eval "${cmd}"
     logger ${cmd}
 
     echo "" > /root/signalization_project/message-body.html
 }
 
-# Func combines email recipient and subject with email cmd template
-# $1 - recipient, $2 - subject
-form_email_body() {
-    local email_command="mailsend -to $1 -from novokosino.home@gmail.com -starttls -port 587 -auth -smtp smtp.gmail.com -sub $2 +cc +bc -v -user novokosino.home@gmail.com -pass 'pass' -mime-type 'text/html' -msg-body /root/signalization_project/message-body.html"
-    echo ${email_command}
-}
-
-# Main send mail method (on state change)
-# $1 state changed, $2 is_alert
-send_email() {
-    if [ $2 = true ]
+# $1 - current_input_state_alert
+choose_alert_state() {
+    if [ $1 = ${GPIO_STATE_HIGH} ]
     then
-        cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html
-        logger "cat /root/signalization_project/signalization_alert.html >> /root/signalization_project/message-body.html"
-        sub=${ALERT_SUB}
-        for i in 0 1 2 3 4 5 6
-        do
-            echo "<br>" >> /root/signalization_project/message-body.html
-        done
-        date >> /root/signalization_project/message-body.html
-        logger "date >> /root/signalization_project/message-body.html"
+        alert_state=false
     else
-        sub=$(form_message_body_and_sub $1)
-        cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
-        sub=${ACTIVATED_SUB}
+        alert_state=true
     fi
-
-    cmd=$(form_email_body FATHER_EMAIL sub)
-    logger ${cmd}
-
-    cmd=$(form_email_body MOTHER_EMAIL sub)
-    logger ${cmd}
-
-    cmd=$(form_email_body SON_EMAIL sub)
-    logger ${cmd}
-
-    echo "" > /root/signalization_project/message-body.html
-
 }
 
-# Method for form message-body
-# $1 - state_changed
-form_message_body_and_sub() {
-    if [ $1 = ${GPIO_STATE_LOW_TO_HIGH} ]
-    then
-        cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html
-        logger "cat /root/signalization_project/signalization_off.html >> /root/signalization_project/message-body.html"
-        sub=${DEACTIVATED_SUB}
-    elif [ $1 = ${GPIO_STATE_HIGH_TO_LOW} ]
-    then
-        cat /root/signalization_project/signalization_on.html >> /root/signalization_project/message-body.html
-        sub=${ACTIVATED_SUB}
-    fi
-
-    for i in 0 1 2 3 4 5 6
-    do
-        echo "<br>" >> /root/signalization_project/message-body.html
-    done
-
-    return ${sub}
+# Method reading current state of input.
+# $1 - port number to check state.
+get_gpio_state() {
+    local port_state=$(cat /sys/class/gpio/$1/value)
+    echo ${port_state}
 }
 
 # All port setup as input (+external 10k pull-up resistors, default value for each port should be high).
@@ -181,6 +167,20 @@ set_gpios() {
     echo "0" > /sys/class/gpio/gpio22/value
 }
 
+# Event logger
+# $1 - message to log
+logger() {
+    echo "$1" >> /root/signalization_project/log
+    date >> /root/signalization_project/log
+    echo "" >> /root/signalization_project/log
+
+    if [ ${DEBUG} = true ]; then
+        echo "$1"
+        date
+        echo ""
+    fi
+}
+
 # Main function, basic init, gpio poll.
 main() {
     echo "" > /root/signalization_project/message-body.html
@@ -189,12 +189,12 @@ main() {
     logger "current activation state: $current_input_state_activated"
 
     current_input_state_alert=$(get_gpio_state "gpio20")
-    logger "current activation state: $current_input_state_alert"
+    logger "current alert state: $current_input_state_alert"
 
     choose_alert_state ${current_input_state_alert}
     logger "Alert state global var: $alert_state"
 
-    send_start_email "$current_input_state_alert" "$current_input_state_activated"
+    send_start_email ${current_input_state_alert} ${current_input_state_activated}
     logger "setup completed"
 
     green_led_is_on=true
@@ -204,50 +204,46 @@ main() {
         if [ ${i} = 10 ]
         then
             if [ ${green_led_is_on} = true ] ; then
-            green_led_is_on=false
-            echo 0 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
+             green_led_is_on=false
+             echo 0 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
 
             else
                 green_led_is_on=true
                 echo 1 > /sys/devices/platform/leds-gpio/leds/gl-connect:green:lan/brightness
             fi
+            i=0
         else
-            i=i+1
+            i=$((i+1))
         fi
 
-        port22_state=$(get_gpio_state "gpio22")
-        if [ ${port22_state} = ${GPIO_STATE_LOW} ]
-        then
-            echo '1' > /sys/class/gpio/gpio22/value
-        else
-            echo '0' > /sys/class/gpio/gpio22/value
-        fi
         previous_input_state_activated=${current_input_state_activated}
         previous_input_state_alert=${current_input_state_alert}
         current_input_state_activated=$(get_gpio_state "gpio19")
         current_input_state_alert=$(get_gpio_state "gpio20")
 
-        if [ $alert_state = true ]
+        if [ "${alert_state}" = true ]
         then
-            if [ current_input_state_alert != ${previous_input_state_alert} ] ; then
+            if [ "${current_input_state_alert}" != "${previous_input_state_alert}" ] ; then
                 alert_state=false
-                logger "State alert changed to False"
+                logger "Alert state global var: $alert_state"
                 send_email ${GPIO_STATE_LOW_TO_HIGH} false
             fi
         fi
 
-        if [ current_input_state_activated != ${previous_input_state_activated} ] ; then
+        if [ "${current_input_state_activated}" != "${previous_input_state_activated}" ] ; then
             current_input_state_activated=$(get_gpio_state "gpio19")
             current_input_state_alert=$(get_gpio_state "gpio20")
             state_activated="$previous_input_state_activated$current_input_state_activated"
             logger "State activated changed: ${state_activated}"
-            if [ ${current_input_state_alert} = ${GPIO_STATE_LOW} ] ; then
-                logger "Alert GPIO went to low! Alert!"
+            if [ "${current_input_state_alert}" = ${GPIO_STATE_LOW} ] ; then
+                logger "Alert! GPIO went to low! Alert!"
                 set_alert_state=true
                 logger "Alert state global var: $alert_state"
-                send_email state_activated true
+                send_email ${state_activated} true
             else
-                send_email state_activated false
+                logger "Regular email sent: state activated changed."
+                logger "Alert state global var: $alert_state"
+                send_email ${state_activated} false
             fi
         fi
     done

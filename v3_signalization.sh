@@ -89,9 +89,9 @@ send_email() {
     eval "${cmd}"
     logger "$cmd"
 
-#    cmd=$(form_email_body $MOTHER_EMAIL $sub)
-#    eval "$cmd"
-#    logger "$cmd"
+    cmd=$(form_email_body ${MOTHER_EMAIL} ${sub})
+    eval "${cmd}"
+    logger "$cmd"
 
     cmd=$(form_email_body ${SON_EMAIL} ${sub})
     eval "${cmd}"
@@ -127,13 +127,13 @@ send_start_email() {
     eval "${cmd}"
     logger "$cmd"
 
-#    cmd=$(form_email_body $MOTHER_EMAIL $GREETING_SUB)
-#    eval "$cmd"
-#    logger "$cmd"
+    cmd=$(form_email_body ${MOTHER_EMAIL} ${GREETING_SUB})
+    eval "${cmd}"
+    logger "$cmd"
 
     cmd=$(form_email_body ${SON_EMAIL} ${GREETING_SUB})
     eval "${cmd}"
-    logger ${cmd}
+    logger "$cmd"
 
     echo "" > /root/signalization_project/message-body.html
 }

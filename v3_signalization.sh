@@ -237,7 +237,7 @@ main() {
             logger "State activated changed: ${state_activated}"
             if [ "${current_input_state_alert}" = ${GPIO_STATE_LOW} ] ; then
                 logger "Alert! GPIO went to low! Alert!"
-                set_alert_state=true
+                alert_state=true
                 logger "Alert state global var: $alert_state"
                 send_email ${state_activated} true
             else

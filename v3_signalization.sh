@@ -46,6 +46,7 @@ form_message_body_and_sub () {
     fi
 }
 
+echo test
 # Choose the initializing picture in order of port states.
 # $1 - current_input_state_alert, $2 - current_input_state_activated
 choose_picture() {

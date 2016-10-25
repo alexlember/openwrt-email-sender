@@ -231,6 +231,8 @@ main() {
             fi
         fi
 
+        test=true
+
         if [ "${current_input_state_activated}" != "${previous_input_state_activated}" ] ; then
             current_input_state_activated=$(get_gpio_state "gpio19")
             current_input_state_alert=$(get_gpio_state "gpio20")

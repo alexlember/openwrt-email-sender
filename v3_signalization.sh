@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Active constants
-DEBUG=true
+DEBUG=false
 
 FATHER_EMAIL="diamonder69@gmail.com"
 #FATHER_EMAIL_2="cpcdrom@yandex.ru"
